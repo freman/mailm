@@ -1,0 +1,55 @@
+# mailm.example.yaml
+# Copy to mailm.yaml and fill in your values.
+# Passwords can be literals, $ENV_VAR references, or ${ENV_VAR} references.
+
+alias: dmarc.reports@example.com
+
+source:
+  host: mail.example.com
+  port: 993
+  tls: ssl                  # ssl | starttls | none (default: ssl on 993, starttls on 143)
+  user: user@example.com
+  password: $SOURCE_IMAP_PASS
+  folders:                  # IMAP LIST patterns - omit to scan everything
+    - INBOX
+    - INBOX/*
+
+dest:
+  host: mail.example.com
+  port: 993
+  tls: ssl
+  user: dmarc.reports@example.com
+  password: $DEST_IMAP_PASS
+  default_folder: INBOX     # where to put messages that have no folder_map entry
+  auto_create_folders: true # create destination folders that don't exist yet
+  # folder_map translates source folder names to destination folder names.
+  # Set a destination to null to skip all messages from that source folder.
+  folder_map:
+    INBOX: INBOX
+    INBOX/Archive: INBOX/Archive
+    INBOX/Junk: null        # skip - don't migrate junk
+
+# Safety: dry_run is true by default. Review the output (and optionally the
+# dry_run_report CSV) before flipping to false.
+dry_run: true
+dry_run_report: ./matched.csv   # written only during a dry run; remove to skip
+
+# Set to true only after a successful dry run.
+delete_source: false
+
+batch_size: 50              # UIDs fetched per IMAP round-trip
+retry_count: 3              # retries on transient network errors
+state_file: ./migration_state.db  # tracks completed copies for safe re-runs
+log_file: ./migration.log   # structured log; remove or set to "" for stdout only
+
+# Date filters - both are optional. Format: YYYY-MM-DD
+# since: "2023-01-01"
+# before: "2025-01-01"
+
+# allow_insecure skips TLS certificate verification.
+# Only use this against a local/test server.
+allow_insecure: false
+
+# overwrite re-copies messages already recorded in the state DB.
+# Use this if a previous run copied messages incorrectly and you want to redo them.
+overwrite: false

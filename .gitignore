@@ -1,0 +1,18 @@
+# binary
+mailm
+mailm.exe
+
+# config with real credentials
+mailm.yaml
+
+# migration artifacts
+*.db
+*.log
+*.csv
+
+# Go
+vendor/
+
+# OS
+.DS_Store
+Thumbs.db
