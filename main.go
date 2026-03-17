@@ -1,6 +1,6 @@
 package main
 
-import "mailm/cmd"
+import "github.com/freman/mailm/cmd"
 
 func main() {
 	cmd.Execute()
