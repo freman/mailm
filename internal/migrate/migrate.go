@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"mailm/internal/config"
-	"mailm/internal/imaputil"
-	"mailm/internal/state"
+	"github.com/freman/mailm/internal/config"
+	"github.com/freman/mailm/internal/imaputil"
+	"github.com/freman/mailm/internal/state"
 )
 
 // Stats accumulates per-run counters.
