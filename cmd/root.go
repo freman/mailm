@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"mailm/internal/config"
-	"mailm/internal/migrate"
+	"github.com/freman/mailm/internal/config"
+	"github.com/freman/mailm/internal/migrate"
 )
 
 var (
