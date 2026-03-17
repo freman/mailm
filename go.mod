@@ -1,4 +1,4 @@
-module mailm
+module github.com/freman/mailm
 
 go 1.22
 
