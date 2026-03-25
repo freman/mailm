@@ -104,7 +104,7 @@ dest:
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--config <path>` | | YAML config file (alternative to positional arg) |
-| `--alias <addr>` | | Alias address to filter on **(required)** |
+| `--alias <addr>` | | Alias address to filter on; repeat for multiple **(required)** |
 | `--source-host <host>` | | IMAP host for the source mailbox **(required)** |
 | `--source-port <n>` | `993` | IMAP port for source |
 | `--source-user <user>` | | Login user for source **(required)** |
@@ -135,7 +135,13 @@ dest:
 ## Config File Reference
 
 ```yaml
+# Single alias (string) — existing configs work unchanged
 alias: dmarc.reports@example.com
+
+# Multiple aliases (list) — same key, list form
+# alias:
+#   - dmarc.reports@example.com
+#   - postmaster@example.com
 
 source:
   host: mail.example.com

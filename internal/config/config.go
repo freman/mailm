@@ -38,9 +38,30 @@ type DestConfig struct {
 	AutoCreate    bool               `yaml:"auto_create_folders"`
 }
 
+// StringSlice unmarshals from either a YAML scalar string or a YAML sequence of strings.
+// This lets `alias` be written as a bare string in existing configs and as a list in new ones.
+type StringSlice []string
+
+func (s *StringSlice) UnmarshalYAML(value *yaml.Node) error {
+	switch value.Kind {
+	case yaml.ScalarNode:
+		*s = StringSlice{value.Value}
+		return nil
+	case yaml.SequenceNode:
+		var strs []string
+		if err := value.Decode(&strs); err != nil {
+			return err
+		}
+		*s = strs
+		return nil
+	default:
+		return fmt.Errorf("alias must be a string or a list of strings")
+	}
+}
+
 // Config is the top-level configuration.
 type Config struct {
-	Alias         string       `yaml:"alias"`
+	Aliases       StringSlice  `yaml:"alias"`
 	Source        SourceConfig `yaml:"source"`
 	Dest          DestConfig   `yaml:"dest"`
 	DryRun        bool         `yaml:"dry_run"`
@@ -92,7 +113,9 @@ func Load(path string) (*Config, error) {
 
 // ExpandEnv replaces $VAR references in password and other fields with environment variable values.
 func (c *Config) ExpandEnv() {
-	c.Alias = expandEnv(c.Alias)
+	for i, a := range c.Aliases {
+		c.Aliases[i] = expandEnv(a)
+	}
 	c.Source.Host = expandEnv(c.Source.Host)
 	c.Source.User = expandEnv(c.Source.User)
 	c.Source.Password = expandEnv(c.Source.Password)
@@ -110,7 +133,7 @@ func expandEnv(s string) string {
 
 // Validate checks required fields and applies defaults for zero values.
 func (c *Config) Validate() error {
-	if c.Alias == "" {
+	if len(c.Aliases) == 0 {
 		return fmt.Errorf("alias is required")
 	}
 	if c.Source.Host == "" {

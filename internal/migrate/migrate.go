@@ -293,13 +293,14 @@ func (m *Migrator) processBatch(srcFolder, destFolder string, uidValidity uint32
 	return stats, copied, nil
 }
 
-// headersMatchAlias returns true if any of the relevant header fields contain the alias address.
+// headersMatchAlias returns true if any of the relevant header fields contain any configured alias.
 func (m *Migrator) headersMatchAlias(headers map[string][]string) bool {
-	alias := strings.ToLower(m.cfg.Alias)
 	for _, field := range []string{"To", "Cc", "Delivered-To", "X-Original-To", "Envelope-To", "X-Forwarded-To"} {
 		for _, val := range headers[textprotoKey(field)] {
-			if addressMatchesAlias(val, alias) {
-				return true
+			for _, alias := range m.cfg.Aliases {
+				if addressMatchesAlias(val, strings.ToLower(alias)) {
+					return true
+				}
 			}
 		}
 	}

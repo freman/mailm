@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -14,7 +15,7 @@ import (
 var (
 	cfgFile string
 	flags   struct {
-		alias          string
+		aliases        []string
 		sourceHost     string
 		sourcePort     int
 		sourceUser     string
@@ -73,7 +74,7 @@ func init() {
 	f := rootCmd.Flags()
 
 	f.StringVar(&cfgFile, "config", "", "Path to YAML config file")
-	f.StringVar(&flags.alias, "alias", "", "Alias address to filter on")
+	f.StringArrayVar(&flags.aliases, "alias", nil, "Alias address to filter on (repeatable for multiple aliases)")
 	f.StringVar(&flags.sourceHost, "source-host", "", "IMAP hostname for source mailbox")
 	f.IntVar(&flags.sourcePort, "source-port", 0, "IMAP port for source (default 993)")
 	f.StringVar(&flags.sourceUser, "source-user", "", "Login user for source mailbox")
@@ -126,7 +127,7 @@ func runMigration(cmd *cobra.Command, args []string) error {
 		mode = "LIVE RUN"
 	}
 	fmt.Printf("\nmailm -- %s\n", mode)
-	fmt.Printf("  alias:   %s\n", cfg.Alias)
+	fmt.Printf("  aliases: %s\n", strings.Join(cfg.Aliases, ", "))
 	fmt.Printf("  source:  %s (%s)\n", cfg.Source.User, cfg.Source.Host)
 	fmt.Printf("  dest:    %s (%s)\n", cfg.Dest.User, cfg.Dest.Host)
 	if cfg.DryRun {
@@ -152,7 +153,7 @@ func runMigration(cmd *cobra.Command, args []string) error {
 	duration := time.Since(start).Round(time.Second)
 
 	fmt.Printf("\nMigration complete\n")
-	fmt.Printf("  Alias:            %s\n", cfg.Alias)
+	fmt.Printf("  Aliases:          %s\n", strings.Join(cfg.Aliases, ", "))
 	fmt.Printf("  Source account:   %s\n", cfg.Source.User)
 	fmt.Printf("  Dest account:     %s\n", cfg.Dest.User)
 	fmt.Printf("  Folders scanned:  %d\n", stats.FoldersScanned)
@@ -180,7 +181,7 @@ func applyFlagOverrides(cfg *config.Config, cmd *cobra.Command) {
 	f := cmd.Flags()
 
 	if f.Changed("alias") {
-		cfg.Alias = flags.alias
+		cfg.Aliases = config.StringSlice(flags.aliases)
 	}
 	if f.Changed("source-host") {
 		cfg.Source.Host = flags.sourceHost

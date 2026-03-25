@@ -2,7 +2,13 @@
 # Copy to mailm.yaml and fill in your values.
 # Passwords can be literals, $ENV_VAR references, or ${ENV_VAR} references.
 
+# Single alias — plain string, backwards compatible with all existing configs.
 alias: dmarc.reports@example.com
+
+# Multiple aliases — list form. Both forms use the same `alias` key.
+# alias:
+#   - dmarc.reports@example.com
+#   - postmaster@example.com
 
 source:
   host: mail.example.com
